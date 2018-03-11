@@ -57,7 +57,11 @@ def ay_search(item_name):
     if len(header_link_list):
         for i in range(len(header_link_list)):
             header=re.sub("^\s+|\n|\r|\s+$", '', header_link_list[i].get_text())
-            price = float(re.sub("^\s+|\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.'))
+           # price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) 
+            try:
+                price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) ##### TODO new type price
+            except:
+                price=0
             if 'href' in header_link_list[i].attrs:
                 link=header_link_list[i].attrs['href']
             if 'src' in img_list[i].attrs:
