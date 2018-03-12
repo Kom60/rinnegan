@@ -59,7 +59,8 @@ def ay_search(item_name):
             header=re.sub("^\s+|\n|\r|\s+$", '', header_link_list[i].get_text())
            # price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) 
             try:
-                price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) ##### TODO new type price
+                price=float(price_list[i].find("strong").get_text().replace(',','.'))
+                #price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) ##### TODO new type price]               
             except:
                 price=0
             if 'href' in header_link_list[i].attrs:
