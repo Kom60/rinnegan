@@ -57,10 +57,8 @@ def ay_search(item_name):
     if len(header_link_list):
         for i in range(len(header_link_list)):
             header=re.sub("^\s+|\n|\r|\s+$", '', header_link_list[i].get_text())
-           # price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) 
             try:
-                price=float(price_list[i].find("strong").get_text().replace(',','.'))
-                #price = float(re.sub("^\s+| |\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.')) ##### TODO new type price]               
+                price=float(price_list[i].find("strong").get_text().replace(',','.'))          
             except:
                 price=0
             if 'href' in header_link_list[i].attrs:
@@ -104,7 +102,6 @@ def onliner_search(item_name):
     link="https://baraholka.onliner.by/search.php?"+urllib.parse.urlencode({'q':item_name})
     title = getTittle(link)
     link_header_list=title.findAll("h2",{"class":"wraptxt"})
-    #img_list=title.findAll("span",{"class":"img-va"})
     price_list=title.findAll("td",{"class":"cost","class":"cost"})
     if len(link_header_list):
         i=0
@@ -118,12 +115,10 @@ def onliner_search(item_name):
             if 'href' in link_header_list[i].find("a").attrs:
                 link="https://baraholka.onliner.by"+img.find("a").attrs['href']
                 title=getTittle(link)               
-                #image=title.find("div",{"class":"content"})#.attrs['src'] 
                 if title.find("img",{"class":"msgpost-img"}):
                     image=title.find("img",{"class":"msgpost-img"}).attrs['src']
-                    #print(image)
                 else:
-                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png' ################## ADD NORMAL IMAGE SCRABBING! #image=img.find("img").attrs['src']  
+                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png'
             i=i+1
             Item_list.append(Item(header,price,link,image))
         return Item_list
