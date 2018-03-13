@@ -16,6 +16,7 @@ import telebot
 import sqlite3 as sql
 #from telebot import util
 import time
+import hmac, hashlib
 
 token="548898691:AAFbphBpkqr3wJ3G5LH2tbeYUWxFhI8yFS4"
 
@@ -158,21 +159,22 @@ class Items():
         self.ay_list=ay_search(search_item_name)
         self.kufar_list=kufar_search(search_item_name)
         self.item_name=search_item_name
+        item_hash=hmac.new(bytearray(search_item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
         conn=sql.connect('Items')
         curs = conn.cursor()
-        #td='create table some1234 (header char(100),price float(10),link char(100),image char(100))'
-        #curs.execute(td)
+        td='create table '+ str(item_hash) + ' (header char(100),price float(10),link char(100),image char(100))'
+        curs.execute(td)
         #conn=sql.connect('Items')
         #curs=conn.cursor()
         for item in self.onliner_list:
             #curs.execute('insert into some1234 values (?,?,?,?)',(item.header,item.price,item.link,item.image))
-            curs.execute('insert into some1234 values (?,?,?,?)',item.database())
+            curs.execute('insert into '+ str(item_hash) + ' values (?,?,?,?)',item.database())
         #curs.executemany('insert into some values (?,?,?,?)',self.ay_list)
         #curs.executemany('insert into some values (?,?,?,?)',self.kufar_list)
         print(curs.rowcount)
         print(sql.paramstyle)
         conn.commit()
-        curs.execute('select * from some1234')
+        curs.execute('select * from '+ str(item_hash))
         for row in curs.fetchall():
             print(row)
         
@@ -225,8 +227,7 @@ def find_file_id(message):
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def outler(message):  
     Z=Items(message.text)
-    Z.sort()
-   # print(len(Z))
+    #Z.sort()
     Z.full_result(message.chat.id)
 
 
