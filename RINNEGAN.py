@@ -13,7 +13,8 @@ from urllib.error import URLError
 from bs4 import BeautifulSoup
 import re
 import telebot
-from telebot import util
+import sqlite3 as sql
+#from telebot import util
 import time
 
 token="548898691:AAFbphBpkqr3wJ3G5LH2tbeYUWxFhI8yFS4"
@@ -58,9 +59,9 @@ def ay_search(item_name):
         for i in range(len(header_link_list)):
             header=re.sub("^\s+|\n|\r|\s+$", '', header_link_list[i].get_text())
             try:
-                price=float(price_list[i].find("strong").get_text().replace(',','.'))          
+                price = float(re.sub("^\s+|\n|\r|\s+$", '',price_list[i].get_text())[10:29].split('б')[0].replace(',','.'))
             except:
-                price=0
+                price=0.0
             if 'href' in header_link_list[i].attrs:
                 link=header_link_list[i].attrs['href']
             if 'src' in img_list[i].attrs:
@@ -102,6 +103,7 @@ def onliner_search(item_name):
     link="https://baraholka.onliner.by/search.php?"+urllib.parse.urlencode({'q':item_name})
     title = getTittle(link)
     link_header_list=title.findAll("h2",{"class":"wraptxt"})
+    #img_list=title.findAll("span",{"class":"img-va"})
     price_list=title.findAll("td",{"class":"cost","class":"cost"})
     if len(link_header_list):
         i=0
@@ -109,16 +111,18 @@ def onliner_search(item_name):
             header=re.sub("^\s+|\n|\r|\s+$", '', link_header_list[i].get_text())
             if(re.sub("^\s+|\n|\r|\s+$", '', price_list[i].get_text().split(".")[0])):
                 price=re.sub("^\s+|\n|\r|\s+$", '', price_list[i].get_text().split(".")[0])
-                price=float(re.sub("^\s+| |\s+$",'',price.split('р')[0].replace(',','.')))
+                price=float(price.split('р')[0].replace(',','.'))
             else:
                 price=0
             if 'href' in link_header_list[i].find("a").attrs:
                 link="https://baraholka.onliner.by"+img.find("a").attrs['href']
                 title=getTittle(link)               
+                #image=title.find("div",{"class":"content"})#.attrs['src'] 
                 if title.find("img",{"class":"msgpost-img"}):
                     image=title.find("img",{"class":"msgpost-img"}).attrs['src']
+                    #print(image)
                 else:
-                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png'
+                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png' ################## ADD NORMAL IMAGE SCRABBING! #image=img.find("img").attrs['src']  
             i=i+1
             Item_list.append(Item(header,price,link,image))
         return Item_list
@@ -139,6 +143,9 @@ class Item():
     def __str__(self):
         return "%s\n %s бел. руб.\n %s\n" %(self.header,self.price,self.link)
     
+    def database(self):
+        return (self.header,self.price,self.link,self.image)
+    
     def image(self):
         return self.image
     
@@ -151,6 +158,23 @@ class Items():
         self.ay_list=ay_search(search_item_name)
         self.kufar_list=kufar_search(search_item_name)
         self.item_name=search_item_name
+        conn=sql.connect('Items')
+        curs = conn.cursor()
+        #td='create table some1234 (header char(100),price float(10),link char(100),image char(100))'
+        #curs.execute(td)
+        #conn=sql.connect('Items')
+        #curs=conn.cursor()
+        for item in self.onliner_list:
+            #curs.execute('insert into some1234 values (?,?,?,?)',(item.header,item.price,item.link,item.image))
+            curs.execute('insert into some1234 values (?,?,?,?)',item.database())
+        #curs.executemany('insert into some values (?,?,?,?)',self.ay_list)
+        #curs.executemany('insert into some values (?,?,?,?)',self.kufar_list)
+        print(curs.rowcount)
+        print(sql.paramstyle)
+        conn.commit()
+        curs.execute('select * from some1234')
+        for row in curs.fetchall():
+            print(row)
         
     def __len__(self):
         return len(self.ay_list+self.kufar_list+self.onliner_list)
