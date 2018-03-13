@@ -22,14 +22,6 @@ token="548898691:AAFbphBpkqr3wJ3G5LH2tbeYUWxFhI8yFS4"
 
 bot = telebot.TeleBot(token)
 
-def getWeather():
-    out=[]
-    title = getTittle("http://192.168.1.105/")
-    out.append(title.find("p1").get_text())
-    out.append(title.find("p2").get_text())
-    out.append(title.find("p3",).get_text())
-    return out
-
 def getTittle(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
     try:
@@ -48,7 +40,13 @@ def getTittle(url):
         return None
     return bsObj   
 
-
+def getWeather():
+    out=[]
+    title = getTittle("http://192.168.1.105/")
+    out.append(title.find("p1").get_text())
+    out.append(title.find("p2").get_text())
+    out.append(title.find("p3",).get_text())
+    return out
     
 def ay_search(item_name):
     Item_list=[]
@@ -160,23 +158,23 @@ class Items():
         self.kufar_list=kufar_search(search_item_name)
         self.item_name=search_item_name
         item_hash=hmac.new(bytearray(search_item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
-        conn=sql.connect('Items')
-        curs = conn.cursor()
-        td='create table '+ str(item_hash) + ' (header char(100),price float(10),link char(100),image char(100))'
-        curs.execute(td)
+        #conn=sql.connect('Items')
+        #curs = conn.cursor()
+        #td='create table '+ str(item_hash) + ' (header char(100),price float(10),link char(100),image char(100))'
+        #curs.execute(td)
         #conn=sql.connect('Items')
         #curs=conn.cursor()
-        for item in self.onliner_list:
+        #for item in self.onliner_list:
             #curs.execute('insert into some1234 values (?,?,?,?)',(item.header,item.price,item.link,item.image))
-            curs.execute('insert into '+ str(item_hash) + ' values (?,?,?,?)',item.database())
+         #   curs.execute('insert into '+ str(item_hash) + ' values (?,?,?,?)',item.database())
         #curs.executemany('insert into some values (?,?,?,?)',self.ay_list)
         #curs.executemany('insert into some values (?,?,?,?)',self.kufar_list)
-        print(curs.rowcount)
-        print(sql.paramstyle)
-        conn.commit()
-        curs.execute('select * from '+ str(item_hash))
-        for row in curs.fetchall():
-            print(row)
+        #print(curs.rowcount)
+        #print(sql.paramstyle)
+        #conn.commit()
+        #curs.execute('select * from '+ str(item_hash))
+        #for row in curs.fetchall():
+         #   print(row)
         
     def __len__(self):
         return len(self.ay_list+self.kufar_list+self.onliner_list)
