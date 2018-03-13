@@ -102,7 +102,6 @@ def onliner_search(item_name):
     link="https://baraholka.onliner.by/search.php?"+urllib.parse.urlencode({'q':item_name})
     title = getTittle(link)
     link_header_list=title.findAll("h2",{"class":"wraptxt"})
-    #img_list=title.findAll("span",{"class":"img-va"})
     price_list=title.findAll("td",{"class":"cost","class":"cost"})
     if len(link_header_list):
         i=0
@@ -116,12 +115,10 @@ def onliner_search(item_name):
             if 'href' in link_header_list[i].find("a").attrs:
                 link="https://baraholka.onliner.by"+img.find("a").attrs['href']
                 title=getTittle(link)               
-                #image=title.find("div",{"class":"content"})#.attrs['src'] 
-                if title.find("img",{"class":"msgpost-img"}):
+                try:
                     image=title.find("img",{"class":"msgpost-img"}).attrs['src']
-                    #print(image)
-                else:
-                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png' ################## ADD NORMAL IMAGE SCRABBING! #image=img.find("img").attrs['src']  
+                except:
+                    image='http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png'
             i=i+1
             Item_list.append(Item(header,price,link,image))
         return Item_list
@@ -144,34 +141,44 @@ class Item():
     
     def database(self):
         return (self.header,self.price,self.link,self.image)
-    
+    '''
+    def push_to_sql(self):
+         for item in self.ay_list:
+            if curs.execute('select header from ay_'+str(item_hash)+' where header = ')
+                curs.execute('insert into ay_'+str(item_hash)+' values (?,?,?,?)',item.database())
+    '''
     def image(self):
         return self.image
     
     def __lt__(self,other):
         return self.price<other.price
     
-class Items():      
+class Items():     
     def __init__(self,search_item_name): 
         self.onliner_list=onliner_search(search_item_name)
         self.ay_list=ay_search(search_item_name)
         self.kufar_list=kufar_search(search_item_name)
         self.item_name=search_item_name
         item_hash=hmac.new(bytearray(search_item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
-        #conn=sql.connect('Items')
-        #curs = conn.cursor()
-        #td='create table '+ str(item_hash) + ' (header char(100),price float(10),link char(100),image char(100))'
-        #curs.execute(td)
-        #conn=sql.connect('Items')
-        #curs=conn.cursor()
-        #for item in self.onliner_list:
-            #curs.execute('insert into some1234 values (?,?,?,?)',(item.header,item.price,item.link,item.image))
+        conn = sql.connect(str(item_hash))
+        curs=conn.cursor()
+        try:
+            td='create table ay_'+ str(item_hash) + ' (header char(150),price float(10),link char(180),image char(150))' 
+            curs.execute(td)
+        except:
+            pass
+        for item in self.ay_list:
+            curs.execute('insert into ay_'+str(item_hash)+' values (?,?,?,?)',item.database())
+        conn.commit()
+        
+       
+        
          #   curs.execute('insert into '+ str(item_hash) + ' values (?,?,?,?)',item.database())
         #curs.executemany('insert into some values (?,?,?,?)',self.ay_list)
         #curs.executemany('insert into some values (?,?,?,?)',self.kufar_list)
         #print(curs.rowcount)
         #print(sql.paramstyle)
-        #conn.commit()
+        #conn.commit()w
         #curs.execute('select * from '+ str(item_hash))
         #for row in curs.fetchall():
          #   print(row)
@@ -180,30 +187,28 @@ class Items():
         return len(self.ay_list+self.kufar_list+self.onliner_list)
     
     def get_items(self,message_chat_id,Item_list):
-            for item in Item_list:
-                bot.send_message(message_chat_id,item.__str__(), 'True')
-                try:
-                    bot.send_photo(message_chat_id,item.image)
-                except:
-                    bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")
-                    time.sleep(1)
-       
+        for item in Item_list:
+            bot.send_message(message_chat_id,item.__str__(), 'True')
+            try:
+                bot.send_photo(message_chat_id,item.image)
+            except:
+                bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")       
             
     def full_result(self,message_chat_id):
         if len(self):
             self.get_items(message_chat_id,self.ay_list)
-            time.sleep(1)
-            self.get_items(message_chat_id,self.kufar_list)
-            time.sleep(1)
-            self.get_items(message_chat_id,self.onliner_list)
+            #time.sleep(1)
+            #self.get_items(message_chat_id,self.kufar_list)
+            #time.sleep(1)
+            #self.get_items(message_chat_id,self.onliner_list)
         else:
             bot.send_message(message_chat_id,"Простите Босс, я ничего не нашёл.", 'True')
-    
-            
+                
     def sort(self):
         self.ay_list.sort()
         self.kufar_list.sort()
         self.onliner_list.sort()
+    
         
         
             
