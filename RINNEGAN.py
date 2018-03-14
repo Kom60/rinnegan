@@ -141,12 +141,7 @@ class Item():
     
     def database(self):
         return (self.header,self.price,self.link,self.image)
-    '''
-    def push_to_sql(self):
-         for item in self.ay_list:
-            if curs.execute('select header from ay_'+str(item_hash)+' where header = ')
-                curs.execute('insert into ay_'+str(item_hash)+' values (?,?,?,?)',item.database())
-    '''
+    
     def image(self):
         return self.image
     
@@ -154,22 +149,57 @@ class Item():
         return self.price<other.price
     
 class Items():     
+    def write_sql(self):
+        conn = sql.connect(self.item_hash)
+        curs=conn.cursor()     
+        try:
+            td='create table ay_'+self.item_hash+' (header char(150),price float(10),link char(180),image char(150))' 
+            curs.execute(td)
+        except:
+            pass
+        for item in self.ay_list:
+            curs.execute('insert into ay_'+self.item_hash+' values (?,?,?,?)',item.database())
+            
+            ''' if (curs.execute('select * from ay_'+self.item_hash+' where link = ?',[item.link])):
+                pass
+            else:'''
+            
+                
+        try:
+            td='create table ku_'+self.item_hash+' (header char(150),price float(10),link char(180),image char(150))' 
+            curs.execute(td)
+        except:
+            pass
+        for item in self.kufar_list:
+            curs.execute('insert into ku_'+self.item_hash+' values (?,?,?,?)',item.database())
+            
+            '''if (curs.execute('select * from ku_'+self.item_hash+' where link = ?',[item.link])):
+                pass
+            else:'''
+            
+                
+        try:
+            td='create table onliner_'+self.item_hash+' (header char(150),price float(10),link char(180),image char(150))' 
+            curs.execute(td)
+        except:
+            pass
+        for item in self.onliner_list:
+            curs.execute('insert into onliner_'+self.item_hash+' values (?,?,?,?)',item.database())
+            
+            '''if (curs.execute('select * from onliner_'+self.item_hash+' where link = ?',[item.link])):
+                pass
+            else:'''
+            
+                
+        conn.commit()
+    
     def __init__(self,search_item_name): 
         self.onliner_list=onliner_search(search_item_name)
         self.ay_list=ay_search(search_item_name)
         self.kufar_list=kufar_search(search_item_name)
         self.item_name=search_item_name
-        item_hash=hmac.new(bytearray(search_item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
-        conn = sql.connect(str(item_hash))
-        curs=conn.cursor()
-        try:
-            td='create table ay_'+ str(item_hash) + ' (header char(150),price float(10),link char(180),image char(150))' 
-            curs.execute(td)
-        except:
-            pass
-        for item in self.ay_list:
-            curs.execute('insert into ay_'+str(item_hash)+' values (?,?,?,?)',item.database())
-        conn.commit()
+        self.item_hash=hmac.new(bytearray(self.item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
+        self.write_sql()
         
        
         
@@ -198,9 +228,9 @@ class Items():
         if len(self):
             self.get_items(message_chat_id,self.ay_list)
             #time.sleep(1)
-            #self.get_items(message_chat_id,self.kufar_list)
+            self.get_items(message_chat_id,self.kufar_list)
             #time.sleep(1)
-            #self.get_items(message_chat_id,self.onliner_list)
+            self.get_items(message_chat_id,self.onliner_list)
         else:
             bot.send_message(message_chat_id,"Простите Босс, я ничего не нашёл.", 'True')
                 
