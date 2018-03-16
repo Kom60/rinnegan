@@ -174,6 +174,27 @@ class Items():
             for item in self.items_list[name]:
                 out.write(item.out_txt())
         out.close()
+        
+    def file_len(self):
+        who_need_update={}
+        len_of_files={}
+        site_names=['ay','kufar','onliner']
+        for name in site_names:
+            try:
+                out = open('/bots/'+name+self.item_hash+'.txt', 'r')
+            except:
+                return {'ay':1,'kufar':1,'onliner':1}
+            how_many=0
+            for i in out:
+                how_many=how_many+1
+            len_of_files[name]=how_many
+        new_len_info=how_many_links(self.item_name)
+        for name in site_names:
+            if len_of_files[name]==new_len_info[name]:
+                who_need_update[name]=0
+            else:
+                who_need_update[name]=1   
+        return who_need_update
                 
     def read_from_file(self):
         site_list={}
@@ -189,27 +210,23 @@ class Items():
                 out_list.append(Item(_header,_price,_link,_image))
                 #print(_price*2)
             site_list[name]=out_list
+        out.close()
         return site_list
                 
-        out.close()
+        
         
     def __init__(self,search_item_name):
         self.item_name=search_item_name
-        self.item_hash=hmac.new(bytearray(self.item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest()
-        self.items_list={'ay':ay_search(self.item_name),'kufar':kufar_search(self.item_name),'onliner':onliner_search(self.item_name)}
-        self.write_to_file()
-        #self.items_list={'ay':[],'kufar':[],'onliner':[]}
-        self.read_from_file()
-        #i=0
-        #for items in self.read_from_file():
-            #print(items)
-           #i=i+1
-        self.items_list=self.read_from_file()
-        for items in self.items_list.values():
-            for item in items:
-                print(item)
-         
-    
+        self.item_hash=hmac.new(bytearray(self.item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest() 
+        self.items_list={}
+        need_update=0
+        for update in self.file_len().values():
+            need_update=need_update+update
+        if need_update:
+            self.items_list={'ay':ay_search(self.item_name),'kufar':kufar_search(self.item_name),'onliner':onliner_search(self.item_name)}
+            self.write_to_file() 
+        else:
+            self.items_list=self.read_from_file()
         
     def __len__(self):
         result=0
