@@ -18,7 +18,7 @@ import sqlite3 as sql
 import time
 import hmac, hashlib
 
-token="548898691:AAFbphBpkqr3wJ3G5LH2tbeYUWxFhI8yFS4"
+token="550900373:AAGBco24Kw9sKCryxDFiGX657p8Adqc34mk"
 
 bot = telebot.TeleBot(token)
 
@@ -41,12 +41,15 @@ def getTittle(url):
     return bsObj   
 
 def getWeather():
-    out=[]
-    title = getTittle("http://192.168.1.105/")
-    out.append(title.find("p1").get_text())
-    out.append(title.find("p2").get_text())
-    out.append(title.find("p3",).get_text())
-    return out
+    try:
+        out=[]
+        title = getTittle("http://192.168.1.105/")
+        out.append(title.find("p1").get_text())
+        out.append(title.find("p2").get_text())
+        out.append(title.find("p3",).get_text())
+        return out
+    except:
+        return [0,0,0]
     
 def ay_search(item_name):
     Item_list=[]
@@ -208,7 +211,6 @@ class Items():
                 _link=item.split('"')[2]
                 _image=item.split('"')[3]
                 out_list.append(Item(_header,_price,_link,_image))
-                #print(_price*2)
             site_list[name]=out_list
         out.close()
         return site_list
