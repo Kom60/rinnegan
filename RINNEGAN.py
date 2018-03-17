@@ -13,10 +13,8 @@ from urllib.error import URLError
 from bs4 import BeautifulSoup
 import re
 import telebot
-import sqlite3 as sql
-#from telebot import util
-import time
 import hmac, hashlib
+import pickle
 
 token="550900373:AAGBco24Kw9sKCryxDFiGX657p8Adqc34mk"
 
@@ -129,23 +127,23 @@ def onliner_search(item_name):
         return Item_list
 
 def how_many_links(item_name):
-    links={'ay':0,'kufar':0,'onliner':0}
+    how_many=0
     
     title = getTittle("http://ay.by/sch/?"+urllib.parse.urlencode({'kwd':item_name}))
     ay_links=title.findAll("a",{"class":"item-type-card__link"})
-    links['ay']=len(ay_links)
+    how_many=how_many+len(ay_links)
     
     link="https://kufar.by/%D0%B1%D0%B5%D0%BB%D0%B0%D1%80%D1%83%D1%81%D1%8C/"+(urllib.parse.urlencode({'':item_name}))[1:]+"--%D0%BF%D1%80%D0%BE%D0%B4%D0%B0%D0%B5%D1%82%D1%81%D1%8F"
     title = getTittle(link)
     kufar_links=title.findAll("a",{"itemprop":"url"})
-    links['kufar']=len(kufar_links)
+    how_many=how_many+len(kufar_links)
     
     link="https://baraholka.onliner.by/search.php?"+urllib.parse.urlencode({'q':item_name})
     title = getTittle(link)
     onliner_links=title.findAll("h2",{"class":"wraptxt"})
-    links['onliner']=len(onliner_links)
+    how_many=how_many+len(onliner_links)
     
-    return links
+    return how_many
 
 class Item():
     def __init__(self,_link="",_price=0,_header="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
@@ -160,9 +158,6 @@ class Item():
     def __str__(self):
         return "%s\n %s бел. руб.\n %s\n" %(self.header,self.price,self.link)
     
-    def out_txt(self):
-        return str(self.link)+'"'+str(self.price)+'"'+str(self.header)+'"'+str(self.image)+'\n'
-    
     def image(self):
         return self.image
     
@@ -171,49 +166,32 @@ class Item():
     
 class Items():     
     def write_to_file(self):
-        site_names=['ay','kufar','onliner']
-        for name in site_names:
-            out = open('/bots/'+name+self.item_hash+'.txt', 'w')
-            for item in self.items_list[name]:
-                out.write(item.out_txt())
-        out.close()
+        dbfile = open(self.item_hash,'wb')
+        pickle.dump(self.items_list,dbfile)
+        dbfile.close()
         
-    def file_len(self):
-        who_need_update={}
-        len_of_files={}
-        site_names=['ay','kufar','onliner']
-        for name in site_names:
-            try:
-                out = open('/bots/'+name+self.item_hash+'.txt', 'r')
-            except:
-                return {'ay':1,'kufar':1,'onliner':1}
-            how_many=0
-            for i in out:
-                how_many=how_many+1
-            len_of_files[name]=how_many
-        new_len_info=how_many_links(self.item_name)
-        for name in site_names:
-            if len_of_files[name]==new_len_info[name]:
-                who_need_update[name]=0
-            else:
-                who_need_update[name]=1   
-        return who_need_update
+    def check_for_new(self):
+        in_db=0
+        dbfile = open(self.item_hash,'rb')
+        db=pickle.load(dbfile)
+        for lists in db.values():
+            in_db=in_db+len(lists)
+        if in_db==how_many_links(self.item_name):
+            print(in_db)            
+            print('sovpalo')
+            print(how_many_links(self.item_name))
+            return 0
+        else:
+            print(in_db)            
+            print('ne sovpalo')
+            print(how_many_links(self.item_name))
+            return 1
                 
     def read_from_file(self):
-        site_list={}
-        site_names=['ay','kufar','onliner']
-        for name in site_names:
-            out = open('/bots/'+name+self.item_hash+'.txt', 'r')
-            out_list=[]
-            for item in out:
-                _header=item.split('"')[0]
-                _price=float(item.split('"')[1])
-                _link=item.split('"')[2]
-                _image=item.split('"')[3]
-                out_list.append(Item(_header,_price,_link,_image))
-            site_list[name]=out_list
-        out.close()
-        return site_list
+        dbfile = open(self.item_hash,'rb')
+        db=pickle.load(dbfile)
+        dbfile.close()
+        return db
                 
         
         
@@ -221,10 +199,7 @@ class Items():
         self.item_name=search_item_name
         self.item_hash=hmac.new(bytearray(self.item_name,'utf-8'), bytearray('','utf-8'), hashlib.md5).hexdigest() 
         self.items_list={}
-        need_update=0
-        for update in self.file_len().values():
-            need_update=need_update+update
-        if need_update:
+        if self.check_for_new():
             self.items_list={'ay':ay_search(self.item_name),'kufar':kufar_search(self.item_name),'onliner':onliner_search(self.item_name)}
             self.write_to_file() 
         else:
