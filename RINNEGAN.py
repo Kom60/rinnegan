@@ -172,28 +172,23 @@ class Items():
         
     def check_for_new(self):
         in_db=0
-        dbfile = open(self.item_hash,'rb')
+        try:
+            dbfile = open(self.item_hash,'rb')
+        except:
+            return 1
         db=pickle.load(dbfile)
         for lists in db.values():
             in_db=in_db+len(lists)
         if in_db==how_many_links(self.item_name):
-            print(in_db)            
-            print('sovpalo')
-            print(how_many_links(self.item_name))
             return 0
         else:
-            print(in_db)            
-            print('ne sovpalo')
-            print(how_many_links(self.item_name))
             return 1
                 
     def read_from_file(self):
         dbfile = open(self.item_hash,'rb')
         db=pickle.load(dbfile)
         dbfile.close()
-        return db
-                
-        
+        return db        
         
     def __init__(self,search_item_name):
         self.item_name=search_item_name
@@ -229,8 +224,18 @@ class Items():
     def sort(self):
         for Item_list in self.items_list:
             Item_list.sort()
-    
-        
+###################################################            
+    def print_new(self):
+        if self.check_for_new():
+            dbfile = open(self.item_hash,'rb')
+            old_items=pickle.load(dbfile)
+            dbfile.close()
+            new_items=Items(self.item_name)
+        else:
+            print('no new,items!')
+
+         
+                
         
         
 
@@ -239,8 +244,6 @@ def find_file_id(message):
     message.text="Я создан служить вам, просто скажите, что я должен найти."
     bot.send_message(message.chat.id,message.text, 'True')
     bot.send_photo(message.chat.id, "https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg");   
-         
-   
    
 @bot.message_handler(commands=['weather'])
 def find_file_id(message):
@@ -252,7 +255,8 @@ def find_file_id(message):
 def outler(message):  
     Z=Items(message.text)
     #Z.sort()
-    Z.full_result(message.chat.id)
+    #Z.full_result(message.chat.id)
+    Z.print_new()
 
 
 if __name__ == '__main__':
