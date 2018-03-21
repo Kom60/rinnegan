@@ -142,7 +142,6 @@ def how_many_links(item_name):
     title = getTittle(link)
     onliner_links=title.findAll("h2",{"class":"wraptxt"})
     how_many=how_many+len(onliner_links)
-    
     return how_many
 
 class Item():
@@ -185,10 +184,14 @@ class Items():
             return 1
                 
     def read_from_file(self):
-        dbfile = open(self.item_hash,'rb')
-        db=pickle.load(dbfile)
-        dbfile.close()
-        return db        
+        try:
+            dbfile = open(self.item_hash,'rb')
+            db=pickle.load(dbfile)
+            dbfile.close()
+            return db   
+        except:
+            print('can\'t find db named'+str(self.item_name))     
+     
         
     def __init__(self,search_item_name):
         self.item_name=search_item_name
@@ -225,12 +228,24 @@ class Items():
         for Item_list in self.items_list:
             Item_list.sort()
 ###################################################            
-    def print_new(self):
+    def print_new(self,message_chat_id):
         if self.check_for_new():
-            dbfile = open(self.item_hash,'rb')
-            old_items=pickle.load(dbfile)
-            dbfile.close()
+            try:
+                dbfile = open(self.item_hash,'rb')
+                old_items=pickle.load(dbfile)
+                dbfile.close()
+            except:
+                print('db not found!')            
             new_items=Items(self.item_name)
+            #out=[]
+            for new_item in new_items.items_list.values():
+                for item in new_item:
+                    if item not in old_items:
+                         bot.send_message(message_chat_id,item.__str__(), 'True')
+                         try:
+                             bot.send_photo(message_chat_id,item.image)
+                         except:
+                             bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
         else:
             print('no new,items!')
 
@@ -256,7 +271,7 @@ def outler(message):
     Z=Items(message.text)
     #Z.sort()
     Z.full_result(message.chat.id)
-    #Z.print_new()
+    Z.print_new(message.chat.id)
 
 
 if __name__ == '__main__':
