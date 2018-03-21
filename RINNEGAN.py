@@ -146,7 +146,7 @@ def how_many_links(item_name):
     return how_many
 
 class Item():
-    def __init__(self,_link="",_price=0,_header="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
+    def __init__(self,_header="",_price=0,_link="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
         self.header=_header
         self.price=_price
         self.link=_link
@@ -255,8 +255,8 @@ def find_file_id(message):
 def outler(message):  
     Z=Items(message.text)
     #Z.sort()
-    #Z.full_result(message.chat.id)
-    Z.print_new()
+    Z.full_result(message.chat.id)
+    #Z.print_new()
 
 
 if __name__ == '__main__':
