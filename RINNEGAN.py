@@ -82,9 +82,9 @@ def kufar_search(item_name):
     if len(header_list):
         for i in range(len(header_list)):
             header=re.sub("^\s+|\"|\n|\r|\s+$", '',header_list[i].get_text())
-            if price_list[i].get_text() and (price_list[i].get_text().find('Дого'))!=True:
+            try:
                 price = float(re.sub("^\s+| |\n|\r|\s+$", '', price_list[i].get_text().split('р')[0].replace(',','.')))
-            else:
+            except:
                 price=0
             if 'href' in img_link_list[i].attrs:
                 link=img_link_list[i].attrs['href']
@@ -147,7 +147,7 @@ def how_many_links(item_name):
 class Item():
     def __init__(self,_header="",_price=0,_link="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
         self.header=_header
-        self.price=_price
+        self.price=float(_price)
         self.link=_link
         self.image=_image
         
@@ -217,6 +217,7 @@ class Items():
                     bot.send_photo(message_chat_id,item.image)
                 except:
                     bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")       
+                    
             
     def full_result(self,message_chat_id):
         if len(self):
@@ -225,7 +226,7 @@ class Items():
             bot.send_message(message_chat_id,"Простите Босс, я ничего не нашёл.", 'True')
                 
     def sort(self):
-        for Item_list in self.items_list:
+        for Item_list in self.items_list.values():
             Item_list.sort()
 ###################################################            
     def print_new(self,message_chat_id):
@@ -269,7 +270,7 @@ def find_file_id(message):
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def outler(message):  
     Z=Items(message.text)
-    #Z.sort()
+    Z.sort()
     Z.full_result(message.chat.id)
     Z.print_new(message.chat.id)
 
