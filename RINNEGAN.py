@@ -217,8 +217,37 @@ class Items():
                     bot.send_photo(message_chat_id,item.image)
                 except:
                     bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")       
-                    
+  
+    def get_name_filtered(self,message_chat_id):
+        k=0
+        for Item_list in self.items_list.values():
+            for item in Item_list:
+                if self.item_name.upper() in item.header or self.item_name.lower() in item.header:
+                    bot.send_message(message_chat_id,item.__str__(), 'True')
+                    k=k+1
+                    try:
+                        bot.send_photo(message_chat_id,item.image)
+                    except:
+                        bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png") 
+        if k==0:
+            bot.send_message(message_chat_id,item.__str__(), 'Ничего подходящего нет, Владыка.')
             
+    def get_price_filtered(self,message_chat_id,low=0,hight=100000):
+        k=0
+        for Item_list in self.items_list.values():
+            for item in Item_list:
+                if item.price > low and item.price < hight:
+                    bot.send_message(message_chat_id,item.__str__(), 'True')
+                    k=k+1
+                    try:
+                        bot.send_photo(message_chat_id,item.image)
+                    except:
+                        bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png") 
+        if k==0:
+            bot.send_message(message_chat_id,item.__str__(), 'Ничего подходящего нет, Владыка.')
+        
+            
+          
     def full_result(self,message_chat_id):
         if len(self):
             self.get_items(message_chat_id)
@@ -228,7 +257,9 @@ class Items():
     def sort(self):
         for Item_list in self.items_list.values():
             Item_list.sort()
-###################################################            
+
+
+          
     def print_new(self,message_chat_id):
         if self.check_for_new():
             try:
@@ -248,12 +279,8 @@ class Items():
                          except:
                              bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
         else:
-            print('no new,items!')
-
-         
-                
-        
-        
+            bot.send_message(message_chat_id,item.__str__(), 'Нет новых лотов!')
+       
 
 @bot.message_handler(commands=['start'])
 def find_file_id(message):
@@ -270,9 +297,10 @@ def find_file_id(message):
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def outler(message):  
     Z=Items(message.text)
-    Z.sort()
-    Z.full_result(message.chat.id)
-    Z.print_new(message.chat.id)
+    #Z.sort()
+    #Z.get_name_filtered(message.chat.id)
+    Z.price_filter(message.chat.id,1,100)
+    #Z.print_new(message.chat.id)
 
 
 if __name__ == '__main__':
