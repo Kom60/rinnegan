@@ -7,6 +7,7 @@ import RINNEGAN as RN
  #state = dbworker.get_current_state(message.chat.id)
 bot = telebot.TeleBot(config.token)
 
+
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
     bot.send_message(message.chat.id, "Начнём сначала, введите /start")
@@ -21,6 +22,36 @@ def cmd_start(message):
     bot.send_message(message.chat.id, "Если хотите познать множество тайн, введите /help")
     dbworker.set_state(message.chat.id, config.States.S_START.value)
  
+@bot.message_handler(commands=["watchdog"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_START.value)
+def cmd_watchdog(message):
+    global watch_list
+    bot.send_message(message.chat.id, "Я могу отслеживать новые лоты, Владыка..")    
+    bot.send_message(message.chat.id, "Чтобы добавить новый лот, введите /add")
+    bot.send_message(message.chat.id, "Чтобы вывести список отслеживаемых товаров, введите /watchlist")
+    bot.send_message(message.chat.id, "Чтобы очистить список, введите /delete")
+    dbworker.set_state(message.chat.id, config.States.S_WATCHDOG.value)
+    
+    #bot.send_message(message.chat.id, "Чтобы добавить новый лот, введите /add")
+    
+@bot.message_handler(commands=["add"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)
+def cmd_add(message):
+    bot.send_message(message.chat.id, "Введите пожалуйста имя добавляемого лота")
+    dbworker.set_state(message.chat.id, config.States.S_WATCHLIST_ADD.value)
+    
+@bot.message_handler(func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_WATCHLIST_ADD.value)
+def input_watch_name(message):
+    watch_list.append(message.text)
+    dbworker.set_state(message.chat.id, config.States.S_START.value)
+    bot.send_message(message.chat.id, message.text+" успешно добавлен!")
+    bot.send_message(message.chat.id, "Чтобы вернуться назад, введите /watchdog")
+    
+@bot.message_handler(commands=["watchlist"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)
+def cmd_watchlist(message):
+    for out in watch_list:
+        bot.send_message(message.chat.id, out)
+        
+    
+    
 @bot.message_handler(commands=["help"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_START.value)
 def cmd_help(message):
     bot.send_message(message.chat.id, "Я создан для того, чтобы служить вам, Владыка.")
@@ -43,14 +74,12 @@ def input_lot_name(message):
     
 @bot.message_handler(commands=["result"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_RESULT.value)
 def cmd_result(message):
-    global lot_name
     OUT=RN.Items(lot_name)
     OUT.full_result(message.chat.id)
     dbworker.set_state(message.chat.id, config.States.S_START.value)
     
 @bot.message_handler(commands=["price"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_RESULT.value)
 def cmd_price(message):
-    global lot_name
     OUT=RN.Items(lot_name)
     OUT.sort()
     OUT.full_result(message.chat.id)
@@ -58,7 +87,6 @@ def cmd_price(message):
     
 @bot.message_handler(commands=["name_filter"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_RESULT.value)
 def cmd_name_filter(message):
-    global lot_name
     OUT=RN.Items(lot_name)
     OUT.get_name_filtered(message.chat.id)
     dbworker.set_state(message.chat.id, config.States.S_START.value)
