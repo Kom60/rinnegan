@@ -279,7 +279,7 @@ class Items():
                          except:
                              bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
         else:
-            bot.send_message(message_chat_id,item.__str__(), 'Нет новых лотов!')
+            bot.send_message(message_chat_id,'Нет новых лотов!')
        
 
 @bot.message_handler(commands=['start'])
@@ -289,7 +289,7 @@ def find_file_id(message):
     bot.send_photo(message.chat.id, "https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg");   
    
 @bot.message_handler(commands=['weather'])
-def find_file_id(message):
+def find_file_isd(message):
     out=getWeather()
     message.text="Temp= "+out[0]+"C, P = " + out[1] + ", Hum = " + out[2]+" %. "
     bot.send_message(message.chat.id,message.text, 'True')   
@@ -299,7 +299,7 @@ def outler(message):
     Z=Items(message.text)
     #Z.sort()
     #Z.get_name_filtered(message.chat.id)
-    Z.price_filter(message.chat.id,1,100)
+    Z.get_name_filtered(message.chat.id)
     #Z.print_new(message.chat.id)
 
 
