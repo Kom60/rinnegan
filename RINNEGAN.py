@@ -5,6 +5,10 @@ Created on Wed Feb 28 13:44:52 2018
 
 @author: kom60
 """
+import telebot
+import config
+import hmac, hashlib
+import pickle
 import urllib.parse
 import urllib.request
 from urllib.request import urlopen,Request
@@ -12,13 +16,29 @@ from urllib.error import HTTPError
 from urllib.error import URLError
 from bs4 import BeautifulSoup
 import re
-import telebot
-import hmac, hashlib
-import pickle
 
-token="550900373:AAGBco24Kw9sKCryxDFiGX657p8Adqc34mk"
+bot = telebot.TeleBot(config.token)
 
-bot = telebot.TeleBot(token)
+
+class Item():
+    def __init__(self,_header="",_price=0,_link="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
+        self.header=_header
+        self.price=float(_price)
+        self.link=_link
+        self.image=_image
+        
+    def __len__(self):
+        return len(self.header+self.price+self.link+self.image)
+    
+    def __str__(self):
+        return "%s\n %s бел. руб.\n %s\n" %(self.header,self.price,self.link)
+    
+    def image(self):
+        return self.image
+    
+    def __lt__(self,other):
+        return self.price<other.price
+    
 
 def getTittle(url):
     hdr = {'User-Agent': 'Mozilla/5.0'}
@@ -38,6 +58,7 @@ def getTittle(url):
         return None
     return bsObj   
 
+'''
 def getWeather():
     try:
         out=[]
@@ -48,6 +69,7 @@ def getWeather():
         return out
     except:
         return [0,0,0]
+'''
     
 def ay_search(item_name):
     Item_list=[]
@@ -108,10 +130,10 @@ def onliner_search(item_name):
         i=0
         for img in link_header_list:
             header=re.sub("^\s+|\"|\n|\r|\s+$", '', link_header_list[i].get_text())
-            if(re.sub("^\s+|\n|\r|\s+$", '', price_list[i].get_text().split(".")[0])):
+            try:
                 price=re.sub("^\s+|\n|\r|\s+$", '', price_list[i].get_text().split(".")[0])
                 price=float(price.split('р')[0].replace(',','.'))
-            else:
+            except:
                 price=0
             if 'href' in link_header_list[i].find("a").attrs:
                 link="https://baraholka.onliner.by"+img.find("a").attrs['href']
@@ -144,25 +166,6 @@ def how_many_links(item_name):
     how_many=how_many+len(onliner_links)
     return how_many
 
-class Item():
-    def __init__(self,_header="",_price=0,_link="",_image="https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg"):
-        self.header=_header
-        self.price=float(_price)
-        self.link=_link
-        self.image=_image
-        
-    def __len__(self):
-        return len(self.header+self.price+self.link+self.image)
-    
-    def __str__(self):
-        return "%s\n %s бел. руб.\n %s\n" %(self.header,self.price,self.link)
-    
-    def image(self):
-        return self.image
-    
-    def __lt__(self,other):
-        return self.price<other.price
-    
 class Items():     
     def write_to_file(self):
         dbfile = open(self.item_hash,'wb')
@@ -280,31 +283,4 @@ class Items():
                              bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
         else:
             bot.send_message(message_chat_id,'Нет новых лотов!')
-       
 
-@bot.message_handler(commands=['start'])
-def find_file_id(message):
-    message.text="Я создан служить вам, просто скажите, что я должен найти."
-    bot.send_message(message.chat.id,message.text, 'True')
-    bot.send_photo(message.chat.id, "https://img.wallpapersafari.com/desktop/1920/1080/30/5/kFTXVI.jpg");   
-   
-@bot.message_handler(commands=['weather'])
-def find_file_isd(message):
-    out=getWeather()
-    message.text="Temp= "+out[0]+"C, P = " + out[1] + ", Hum = " + out[2]+" %. "
-    bot.send_message(message.chat.id,message.text, 'True')   
-   
-@bot.message_handler(func=lambda message: True, content_types=['text'])
-def outler(message):  
-    Z=Items(message.text)
-    #Z.sort()
-    #Z.get_name_filtered(message.chat.id)
-    Z.get_name_filtered(message.chat.id)
-    #Z.print_new(message.chat.id)
-
-
-if __name__ == '__main__':
-    bot.polling(none_stop=True)
-    
-    
-#Z = Items('МТО')

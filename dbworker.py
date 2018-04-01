@@ -23,4 +23,3 @@ def set_state(user_id,value):
         except:
             return False
         
-        
