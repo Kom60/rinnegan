@@ -9,10 +9,16 @@ Created on Sun Apr  1 13:56:13 2018
 import pickle
 import telebot
 import config
+
 bot = telebot.TeleBot(config.token)
 
 class WatchDogList():
-    
+   def clear_list(self):
+       dbfile = open('dump','wb')
+       pickle.dump('',dbfile)
+       dbfile.close()
+       self.watch_list=[]
+
    def add_to_list(self,name):
        self.watch_list.append(name)
        self.write_to_file()
@@ -31,10 +37,22 @@ class WatchDogList():
        except:
            return False
        
-   def get_watch_list(self,message_chat_id):
-       for i in self.watch_list:
-           bot.send_message(message_chat_id,i,self.watch_list.__str__(),'True')
-       
+   def print_watch_list(self,message_chat_id):
+       if self.watch_list:
+           for i in self.watch_list:
+               bot.send_message(message_chat_id,i,'True')
+       else:
+           bot.send_message(message_chat_id,'Cписок пуст!','True')
+           
+   def get_watch_list(self):
+       if self.watch_list:
+           out=[]
+           for i in self.watch_list:
+               out.append(i)
+           return out
+       else:
+           return ''
+    
    def __init__(self):
        self.watch_list=[]
    
@@ -43,8 +61,9 @@ Z=WatchDogList()
 def input_watch_name(message):
     global Z
     Z.add_to_list(message.text)
-    Z.get_watch_list(message.chat.id)
-    bot.send_message(message.chat.id, message.text+" успешно добавлен!")      
+    Z.print_watch_list(message.chat.id)
+    bot.send_message(message.chat.id, message.text+" успешно добавлен!")
+    print(Z.get_watch_list())      
 
     
 if __name__ == "__main__":

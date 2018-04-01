@@ -3,7 +3,7 @@
 import telebot
 import config
 import dbworker
-import os,time
+import _thread,time
 import RINNEGAN as RN
 import WatchDog as WD
  #state = dbworker.get_current_state(message.chat.id)
@@ -11,12 +11,11 @@ bot = telebot.TeleBot(config.token)
 Watch_Dog=WD.WatchDogList()
 Watch_Dog.read_from_file()
 
-def watch_dog_funk(message_chat_id):
-    time.sleep(10)
-    name_list=dbworker.get_watchlist
-    for name in name_list:
-        OUT=RN.Items(name)
-        OUT.print_new(message_chat_id)
+def watch_dog_funk(OUT,message_chat_id):
+    while True:
+        time.sleep(60)
+        for item in OUT:
+            item.print_new(message_chat_id)
 
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
@@ -45,9 +44,11 @@ def cmd_watchdog(message):
     #bot.send_message(message.chat.id, "Чтобы добавить новый лот, введите /add")
 @bot.message_handler(commands=["dog_start"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)
 def cmd_dog_start(message):
-    global watch_list
-    os.fork()
-    watch_dog_funk(watch_list,message.chat.id)
+    global Watch_Dog
+    OUT=[]
+    for name in Watch_Dog.get_watch_list():
+        OUT.append(RN.Items(str(name)))
+    _thread.start_new_thread(watch_dog_funk,(OUT,message.chat.id,))
     
     
     
@@ -72,11 +73,11 @@ def input_watch_name(message):
 def cmd_watchlist(message):
     dbworker.set_state(message.chat.id, config.States.S_WATCHDOG.value)
     global Watch_Dog
-    Watch_Dog.get_watch_list(message.chat.id)
+    Watch_Dog.print_watch_list(message.chat.id)
         
 @bot.message_handler(commands=["delete"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)
 def cmd_delete(message):
-    dbworker.reset_watchlist(message.chat.id)
+    Watch_Dog.clear_list()
     bot.send_message(message.chat.id, "Список успешно очищен!")
     
 @bot.message_handler(commands=["help"],func=lambda message: dbworker.get_current_state(message.chat.id) == config.States.S_START.value)

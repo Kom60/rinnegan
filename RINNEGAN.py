@@ -176,9 +176,9 @@ class Items():
         in_db=0
         try:
             dbfile = open(self.item_hash,'rb')
+            db=pickle.load(dbfile)
         except:
-            return 1
-        db=pickle.load(dbfile)
+            return 1        
         for lists in db.values():
             in_db=in_db+len(lists)
         if in_db==how_many_links(self.item_name):
@@ -276,11 +276,12 @@ class Items():
             for new_item in new_items.items_list.values():
                 for item in new_item:
                     if item not in old_items:
-                         bot.send_message(message_chat_id,item.__str__(), 'True')
-                         try:
-                             bot.send_photo(message_chat_id,item.image)
-                         except:
-                             bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
-        else:
-            bot.send_message(message_chat_id,'Нет новых лотов!')
+                        print(item)
+                         #bot.send_message(message_chat_id,item.__str__(), 'True')
+                         #try:
+                         #    bot.send_photo(message_chat_id,item.image)
+                         #except:
+                         #    bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
+        #else:
+            #bot.send_message(message_chat_id,'Нет новых лотов!')
 
