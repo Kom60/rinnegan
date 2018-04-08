@@ -91,7 +91,7 @@ def ay_search(item_name):
             Item_list.append(Item(header,price,link,image))
         return Item_list
     else:
-        return Item_list       
+        return Item_list      
     
 
 def kufar_search(item_name):
@@ -252,7 +252,8 @@ class Items():
             
           
     def full_result(self,message_chat_id):
-        if len(self):
+        if self.get_len():
+            print(self.get_len())
             self.get_items(message_chat_id)
         else:
             bot.send_message(message_chat_id,"Простите Босс, я ничего не нашёл.", 'True')
@@ -261,6 +262,12 @@ class Items():
         for Item_list in self.items_list.values():
             Item_list.sort()
 
+    def get_len(self):
+        how_many_lot=0
+        for item_list in self.items_list.values():
+            for item in item_list:
+                how_many_links+=1
+        return how_many_lot
 
           
     def print_new(self,message_chat_id):
