@@ -225,7 +225,7 @@ class Items():
         k=0
         for Item_list in self.items_list.values():
             for item in Item_list:
-                if self.item_name.upper() in item.header or self.item_name.lower() in item.header:
+                if self.item_name in item.header or self.item_name.lower() in item.header:
                     bot.send_message(message_chat_id,item.__str__(), 'True')
                     k=k+1
                     try:
@@ -275,13 +275,13 @@ class Items():
             #out=[]
             for new_item in new_items.items_list.values():
                 for item in new_item:
-                    if item not in old_items:
-                        print(item)
-                         #bot.send_message(message_chat_id,item.__str__(), 'True')
-                         #try:
-                         #    bot.send_photo(message_chat_id,item.image)
-                         #except:
-                         #    bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
+                    if item in old_items:
+                        #print(item)
+                        bot.send_message(message_chat_id,item.__str__(), 'True')
+                        try:
+                            bot.send_photo(message_chat_id,item.image)
+                        except:
+                            bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
         #else:
             #bot.send_message(message_chat_id,'Нет новых лотов!')
 

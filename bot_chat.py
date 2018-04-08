@@ -8,7 +8,8 @@ import RINNEGAN as RN
 import WatchDog as WD
  #state = dbworker.get_current_state(message.chat.id)
 bot = telebot.TeleBot(config.token)
-
+global State
+State=dbworker.User_State('1',config.States.S_START.value)
 def watch_dog_funk(OUT,message_chat_id):
     while True:
         time.sleep(60)

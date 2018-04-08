@@ -9,8 +9,6 @@ Created on Thu Mar 22 10:09:46 2018
 from enum import Enum
 
 token="550900373:AAGBco24Kw9sKCryxDFiGX657p8Adqc34mk"
-db_file = "state.vdb"
-dog_file = "watchlist.vdb"
 
 class States(Enum):
     S_START="0"
