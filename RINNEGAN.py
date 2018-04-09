@@ -253,7 +253,6 @@ class Items():
           
     def full_result(self,message_chat_id):
         if self.get_len():
-            print(self.get_len())
             self.get_items(message_chat_id)
         else:
             bot.send_message(message_chat_id,"Простите Босс, я ничего не нашёл.", 'True')
@@ -266,7 +265,7 @@ class Items():
         how_many_lot=0
         for item_list in self.items_list.values():
             for item in item_list:
-                how_many_links+=1
+                how_many_lot+=1
         return how_many_lot
 
           
