@@ -9,8 +9,18 @@ Created on Sun Apr  1 13:56:13 2018
 import pickle
 import telebot
 import config
+import sys
+import argparse
+import RINNEGAN as RN
+import time
 
 bot = telebot.TeleBot(config.token)
+
+def createParser ():
+    parser = argparse.ArgumentParser()
+    parser.add_argument ('-chat_id', nargs='?')
+ 
+    return parser
 
 class WatchDogList():
    def clear_list(self,_chat_id):
@@ -54,10 +64,26 @@ class WatchDogList():
     
    def __init__(self,_chat_id):
        self.watch_list=[]
-       self.write_to_file(_chat_id)
+       try:
+           self.read_from_file(_chat_id)
+       except:
+           self.watch_list=[]
+           self.write_to_file(_chat_id)
    
 
     
 if __name__ == "__main__":
-    bot.polling(none_stop=True)
+    parser = createParser()
+    namespace = parser.parse_args()
+    LIST=WatchDogList(namespace.chat_id).get_watch_list(namespace.chat_id)
+    if namespace.chat_id:
+         bot.send_message(namespace.chat_id,namespace.chat_id,'True')
+         OUT=[]
+         for item_name in LIST:
+             OUT.append(RN.Items(item_name))
+         while True:
+             time.sleep(2)
+             for item in OUT:
+                item.print_new(namespace.chat_id)
+           
     

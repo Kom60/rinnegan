@@ -267,27 +267,42 @@ class Items():
             for item in item_list:
                 how_many_lot+=1
         return how_many_lot
+    
+    def get_all_links(self):
+        all_links=[]
+        for Item_list in self.items_list.values():
+            for item in Item_list:
+                all_links.append(item.link)
+        return all_links
+                
 
           
     def print_new(self,message_chat_id):
         if self.check_for_new():
-            try:
+            '''try:
                 dbfile = open(self.item_hash,'rb')
                 old_items=pickle.load(dbfile)
+                old_links=old_items.get_all_links()
                 dbfile.close()
             except:
-                print('db not found!')            
+                print('db not found!')     
+                return False'''
             new_items=Items(self.item_name)
             #out=[]
             for new_item in new_items.items_list.values():
                 for item in new_item:
-                    if item in old_items:
+                    if item.link not in self.get_all_links():
                         #print(item)
                         bot.send_message(message_chat_id,item.__str__(), 'True')
                         try:
                             bot.send_photo(message_chat_id,item.image)
                         except:
-                            bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")                            
-        #else:
-            #bot.send_message(message_chat_id,'Нет новых лотов!')
+                            bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")     
+            return True
+        else:
+            bot.send_message(message_chat_id,'Нет новых лотов!')
+
+
+    
+
 

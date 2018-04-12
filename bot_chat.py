@@ -6,7 +6,7 @@ import dbworker
 import _thread,time
 import RINNEGAN as RN
 import WatchDog as WD
-
+import os
 
 bot = telebot.TeleBot(config.token)
 
@@ -14,11 +14,8 @@ global State
 State=dbworker.User_State('1',config.States.S_START.value)
 
 
-def watch_dog_funk(OUT,message_chat_id):
-    while True:
-        time.sleep(60)
-        for item in OUT:
-            item.print_new(message_chat_id)
+def watch_dog_funk(dog_list,message_chat_id):
+    os.system('python3 WatchDog.py -chat_id '+str(message_chat_id))
 
 @bot.message_handler(commands=["reset"])
 def cmd_reset(message):
@@ -54,10 +51,8 @@ def cmd_watchdog(message):
 @bot.message_handler(commands=["dog_start"],func=lambda message: State.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)
 def cmd_dog_start(message):
     global Watch_Dog
-    OUT=[]
-    for name in Watch_Dog.get_watch_list(message.chat.id):
-        OUT.append(RN.Items(str(name)))
-    _thread.start_new_thread(watch_dog_funk,(OUT,message.chat.id,))
+    dog_list=Watch_Dog.get_watch_list(message.chat.id)
+    _thread.start_new_thread(watch_dog_funk,(dog_list,message.chat.id,))
     
     
     
