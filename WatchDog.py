@@ -77,7 +77,7 @@ if __name__ == "__main__":
     namespace = parser.parse_args()
     LIST=WatchDogList(namespace.chat_id).get_watch_list(namespace.chat_id)
     if namespace.chat_id:
-         bot.send_message(namespace.chat_id,namespace.chat_id,'True')
+         #bot.send_message(namespace.chat_id,namespace.chat_id,'True')
          OUT=[]
          for item_name in LIST:
              OUT.append(RN.Items(item_name))

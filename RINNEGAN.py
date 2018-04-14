@@ -52,7 +52,7 @@ def getTittle(url):
         print("URL Error!")
         return None
     try:
-        bsObj = BeautifulSoup(html,"lxml")
+        bsObj = BeautifulSoup(html,)
     except AttributeError as e:
         print("Can't find atribute!")
         return None
