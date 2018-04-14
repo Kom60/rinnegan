@@ -49,7 +49,7 @@ class WatchDogList():
            dbfile.close()
            return out
        except:
-           return False
+           return out
        
    def print_watch_list(self,message_chat_id):
        self.watch_list=self.read_from_file(message_chat_id)
