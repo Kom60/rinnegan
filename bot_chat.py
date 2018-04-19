@@ -3,7 +3,8 @@
 import telebot
 import config
 import dbworker
-import _thread,time
+import _thread
+#import time
 import RINNEGAN as RN
 import WatchDog as WD
 import os
@@ -53,6 +54,11 @@ def cmd_dog_start(message):
     global Watch_Dog
     dog_list=Watch_Dog.get_watch_list(message.chat.id)
     _thread.start_new_thread(watch_dog_funk,(dog_list,message.chat.id,))
+    bot.send_message(message.chat.id, "Если появится что-нибудь новое, я сразу же вам сообщю об этом.") 
+    bot.send_message(message.chat.id, "Если желаете найти что-нибудь на барахолках, введите /search")
+    bot.send_message(message.chat.id, "Если хотите, чтобы я отслеживал новые лоты, введите /watchdog")
+    global State
+    State.set_state(message.chat.id, config.States.S_START.value)
     
     
     
@@ -77,6 +83,7 @@ def input_watch_name(message):
 def cmd_watchlist(message):
     State.set_state(message.chat.id, config.States.S_WATCHDOG.value)
     global Watch_Dog
+    Watch_Dog=WD.WatchDogList(message.chat.id)
     Watch_Dog.print_watch_list(message.chat.id)
         
 @bot.message_handler(commands=["delete"],func=lambda message: State.get_current_state(message.chat.id) == config.States.S_WATCHDOG.value)

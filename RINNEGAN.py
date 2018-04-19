@@ -299,8 +299,8 @@ class Items():
                         except:
                             bot.send_photo(message_chat_id,"http://www.clker.com/cliparts/B/u/S/l/W/l/no-photo-available-md.png")     
             return True
-        else:
-            bot.send_message(message_chat_id,'Нет новых лотов!')
+        #else:
+           # bot.send_message(message_chat_id,'Нет новых лотов!')
 
 
     
